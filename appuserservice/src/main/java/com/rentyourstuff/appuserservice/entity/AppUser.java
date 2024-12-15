@@ -1,10 +1,8 @@
 package com.rentyourstuff.appuserservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+
 
 @Entity
 @Table(name = "appuser")
@@ -19,6 +17,7 @@ public class AppUser {
     private String email;
     private String fullName;
     private String phoneNumber;
+
 
     // Getters and Setters
     public Long getId() {
@@ -68,4 +67,6 @@ public class AppUser {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+ 
 }

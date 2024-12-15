@@ -2,6 +2,10 @@ package com.rentyourstuff.appuserservice.service;
 
 import com.rentyourstuff.appuserservice.entity.AppUser;
 import com.rentyourstuff.appuserservice.repository.UserRepository;
+import com.rentyourstuff.appuserservice.util.JwtUtil;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +24,18 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     
     @Autowired
+    private JwtUtil jwtUtil;
+    
+    public String authenticateUser(String username, String password) {
+        AppUser user = userRepository.findByUsername(username);
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            return jwtUtil.generateToken(username);
+        }
+        return null;
+    }
+
+    
+    @Autowired
     public UserService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
@@ -32,12 +48,18 @@ public class UserService {
     public AppUser findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-
-    public AppUser updateProfile(Long userId, AppUser updatedUser) {
-        AppUser user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setFullName(updatedUser.getFullName());
-        user.setPhoneNumber(updatedUser.getPhoneNumber());
-        user.setEmail(updatedUser.getEmail());
-        return userRepository.save(user);
+    
+    public Optional<AppUser> findById(Long Id) {
+        return userRepository.findById(Id);
     }
+	public AppUser updateProfile(Long id, AppUser updatedUser) {
+		if (userRepository.existsById(id)) {
+			updatedUser.setId(id);
+            return userRepository.save(updatedUser);
+            }
+		
+		return null;
+	}
+
+
 }
