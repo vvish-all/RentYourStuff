@@ -1,59 +1,58 @@
 package com.rentyourstuff.productservice.service;
 
-import com.rentyourstuff.productservice.dto.AppUser;
+import com.rentyourstuff.productservice.dto.ProductRequestDto;
+import com.rentyourstuff.productservice.dto.ProductResponseDto;
 import com.rentyourstuff.productservice.entity.Product;
 import com.rentyourstuff.productservice.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.rentyourstuff.productservice.util.ProductMapper;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
-    @Autowired
-    private ProductRepository productRepository;
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Value("${eureka.client.service-url.default-zone}")
-    private String EUREKA_SERVICE_BASE_URL;           //"Http://localhost:8671/users"; // Eureka URI 
+    private final ProductRepository productRepository;
+    public final ProductMapper productMapper;
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getProductById(Long id) {
+    public Optional<Product> getProductById(UUID id) {
         return productRepository.findById(id);
     }
     
 
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
+        //set ownerId from userId from gateway
+        Product saved = productRepository.save(productMapper.toProductEntity(productRequestDto));
+        return productMapper.toProductResponseDto(saved);
     }
 
-    public Product updateProduct(Long id, Product product) {
-        if (productRepository.existsById(id)) {
-            product.setId(id);
-            return productRepository.save(product);
-        }
-        return null;
+    public ProductResponseDto updateProduct(ProductRequestDto productRequestDto) {
+        Product productInDb = productRepository.findById(productRequestDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Product not found with id: " + productRequestDto.getId()
+                ));
+
+        Product updatedProduct = productMapper.updateProduct(productRequestDto, productInDb);
+        Product saved = productRepository.save(updatedProduct);
+        return productMapper.toProductResponseDto(saved);
     }
 
-    public void deleteProduct(Long id) {
+    public void deleteProduct(UUID id) {
         productRepository.deleteById(id);
     }
     
 
-    public Optional<List<Product>> getProductsByOwnerId(Long ownerId) {
+    public Optional<List<Product>> getProductsByOwnerId(UUID ownerId) {
         return productRepository.findByOwnerId(ownerId);
     }
 
-    public AppUser getOwnerDetails(Long ownerId) {
-        String url = EUREKA_SERVICE_BASE_URL + "/users/" + ownerId;
-        return restTemplate.getForObject(url, AppUser.class); 
-    }
 }
