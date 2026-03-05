@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -23,7 +24,7 @@ public class Product extends BaseEntity{
     private String name;
     private String description;
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal unitPrice;
 
     @Column(nullable = false)
     private UUID ownerId;

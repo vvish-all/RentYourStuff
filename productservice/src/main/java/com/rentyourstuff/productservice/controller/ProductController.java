@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -40,40 +39,32 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable UUID id) {
-        Optional<Product> productById = productService.getProductById(id);
-        if(productById.isPresent()){
-            return ResponseEntity.ok().body(productById.get());
-        }
-        return ResponseEntity.notFound().build();
+        Product productById = productService.getProductById(id);
+        return ResponseEntity.ok().body(productById);
     }
     
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<Product>> getProductsByOwnerId(@PathVariable UUID ownerId) {
-        Optional<List<Product>> products = productService.getProductsByOwnerId(ownerId);
-        if (products.isPresent() && !products.get().isEmpty()) {
-            return ResponseEntity.ok(products.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        List<Product> productsByOwnerId = productService.getProductsByOwnerId(ownerId);
+        return ResponseEntity.ok(productsByOwnerId);
     }
-    @PutMapping("/update")
-    public ResponseEntity<?> updateProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {// check the owner
 
+    @PutMapping("/update")
+    public ResponseEntity<?> updateProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {
+        // check the owner
         ProductResponseDto productResponseDto = productService.updateProduct(productRequestDto);
         return ResponseEntity.ok().body(productResponseDto);
     }
 
     @DeleteMapping("/delete-product/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable UUID id) {
-
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
-
     }
 
     @GetMapping("/health")
     public ResponseEntity<?> healthCheck(){
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("OK");
     }
     
 }

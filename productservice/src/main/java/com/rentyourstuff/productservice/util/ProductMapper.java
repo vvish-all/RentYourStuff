@@ -13,7 +13,7 @@ public class ProductMapper {
         return Product.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .price(dto.getPrice())
+                .unitPrice(dto.getUnitPrice())
                 .ownerId(dto.getOwnerId())
                 // id, createdAt, updatedAt, version are auto-managed
                 .build();
@@ -24,8 +24,11 @@ public class ProductMapper {
         return new ProductResponseDto(
                 product.getName(),
                 product.getDescription(),
-                product.getPrice(),
-                product.getOwnerId()
+                product.getUnitPrice(),
+                product.getOwnerId(),
+                product.getCreatedAt(),
+                product.getUpdatedAt(),
+                product.getVersion()
         );
     }
 
@@ -35,7 +38,7 @@ public class ProductMapper {
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
-                product.getPrice(),
+                product.getUnitPrice(),
                 product.getOwnerId()
         );
     }
@@ -48,8 +51,8 @@ public class ProductMapper {
         if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
             productInDb.setDescription(dto.getDescription());
         }
-        if (dto.getPrice() != null) {
-            productInDb.setPrice(dto.getPrice());
+        if (dto.getUnitPrice() != null) {
+            productInDb.setUnitPrice(dto.getUnitPrice());
         }
         if (dto.getOwnerId() != null) {
             productInDb.setOwnerId(dto.getOwnerId());

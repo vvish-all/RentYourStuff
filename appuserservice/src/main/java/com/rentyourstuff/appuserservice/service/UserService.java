@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.rentyourstuff.appuserservice.util.UserMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -45,9 +46,13 @@ public class UserService {
         return userInDB.map(userMapper::toUserResponseDto).orElse(null);
     }
 	public UserResponseDto updateProfile(UserRequestDto userRequestDto) {
-        AppUser userInDb = userRepository.findByUserName(userRequestDto.getUserName());
+        Optional<AppUser> userInDb = userRepository.findByUserName(userRequestDto.getUserName());
 
-        AppUser updatedUser = userMapper.updateAppUserEntityFromDto(userRequestDto, userInDb);
+        if(userInDb.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        AppUser updatedUser = userMapper.updateAppUserEntityFromDto(userRequestDto, userInDb.get());
         AppUser saved = userRepository.save(updatedUser);
         return userMapper.toUserResponseDto(saved);
     }
@@ -103,8 +108,11 @@ public class UserService {
 
 
     public UserResponseDto getUserProfile(String username) {
-        AppUser user = userRepository.findByUserName(username);
-        return userMapper.toUserResponseDto(user);
+        Optional<AppUser> user = userRepository.findByUserName(username);
+        if(user.isEmpty()){
+            throw new EntityNotFoundException("Username not found");
+        }
+        return userMapper.toUserResponseDto(user.get());
     }
 
 }

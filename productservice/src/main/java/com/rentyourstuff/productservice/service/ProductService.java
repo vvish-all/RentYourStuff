@@ -24,8 +24,11 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getProductById(UUID id) {
-        return productRepository.findById(id);
+    public Product getProductById(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Product not found with id: " + id
+                ));
     }
     
 
@@ -51,8 +54,11 @@ public class ProductService {
     }
     
 
-    public Optional<List<Product>> getProductsByOwnerId(UUID ownerId) {
-        return productRepository.findByOwnerId(ownerId);
+    public List<Product> getProductsByOwnerId(UUID ownerId) {
+        return productRepository.findByOwnerId(ownerId).
+                orElseThrow(() -> new EntityNotFoundException(
+                        "Owner not found with id: " + ownerId
+                ));
     }
 
 }

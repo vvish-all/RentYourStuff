@@ -4,8 +4,11 @@ import com.rentyourstuff.appuserservice.entity.AppUser;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<AppUser, UUID> {
-    AppUser findByUserName(String userName);
+    Optional<AppUser> findByUserName(String userName);
+
+    Optional<AppUser> findByEmail(String email);
 }
